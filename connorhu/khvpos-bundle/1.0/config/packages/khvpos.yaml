@@ -1,0 +1,38 @@
+kvpos:
+    payment_settings:
+        v1huf:
+            currency: HUF
+            test: false
+            private_key_path: "path_to_private_key.pem"
+            private_key_passphrase: pem_passphrase
+            version: v1
+            merchant_id: HUF_mid
+
+        v1eur:
+            currency: EUR
+            test: false
+            private_key_path: "path_to_private_key.pem"
+            private_key_passphrase: pem_passphrase
+            version: v1
+            merchant_id: EUR_mid
+            
+when@prod:
+    kvpos:
+        payment_settings:
+            v1huf:
+                currency: HUF
+                test: true
+                private_key_path: "path_to_private_key.pem"
+                private_key_passphrase: pem_passphrase
+                version: v1
+                merchant_id: HUF_mid
+                
+            v1eur:
+                currency: EUR
+                test: true
+                private_key_path: "path_to_private_key.pem"
+                private_key_passphrase: pem_passphrase
+                version: v1
+                merchant_id: EUR_mid
+
+    
