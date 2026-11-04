@@ -43,6 +43,7 @@
                         "# --- K\u00f6rnyezetek: <env>_KULCS ---",
                         "# A k\u00f6rnyezet neve bet\u0171vel kezd\u0151d\u0151, kisbet\u0171kb\u0151l, sz\u00e1mokb\u00f3l \u00e9s _ jelb\u0151l \u00e1ll\u00f3 sz\u00f3.",
                         "# Haszn\u00e1lat: bin/build prod, bin/deploy prod",
+                        "# Az SSH_TARGET alakja: user@host vagy user@host:port.",
                         "",
                         "prod_BRANCH=main",
                         "prod_SSH_TARGET=root@example.hu",
@@ -192,7 +193,7 @@
                     "executable": false
                 }
             },
-            "ref": "4b043ece5bb7bb1c2a1b22f82beab9b187817fa3"
+            "ref": "43a1fc37912d36852f2e2404082fd2f09d904aec"
         }
     }
 }
