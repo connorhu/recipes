@@ -1,0 +1,198 @@
+{
+    "manifests": {
+        "connorhu/symfony-deploy": {
+            "manifest": {
+                "copy-from-recipe": {
+                    "bin/": "%BIN_DIR%/",
+                    "deploy/": "deploy/"
+                },
+                "gitignore": [
+                    "/.build/"
+                ],
+                "post-install-output": [
+                    "  * T\u00f6ltsd ki a <fg=green>deploy/deploy.conf</> \u00e9rt\u00e9keit (ssh c\u00e9l, \u00fatvonalak)",
+                    "  * A hookok a <fg=green>deploy/hooks/</> mapp\u00e1ban vannak, a .sample v\u00e9gz\u0151d\u00e9s elhagy\u00e1s\u00e1val kapcsolhat\u00f3k be"
+                ]
+            },
+            "files": {
+                "bin/build": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "set -euo pipefail",
+                        "cd \"$(dirname \"$0\")/..\"",
+                        "exec \"vendor/bin/symfony-deploy\" build \"$@\"",
+                        ""
+                    ],
+                    "executable": true
+                },
+                "bin/deploy": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "set -euo pipefail",
+                        "cd \"$(dirname \"$0\")/..\"",
+                        "exec \"vendor/bin/symfony-deploy\" deploy \"$@\"",
+                        ""
+                    ],
+                    "executable": true
+                },
+                "deploy/deploy.conf": {
+                    "contents": [
+                        "# Deploy konfigur\u00e1ci\u00f3 (bash szintaxis, a scriptek source-olj\u00e1k).",
+                        "# Titkot nem tartalmazhat: a jelszavak \u00e9s kulcsok a c\u00e9lg\u00e9pen \u00e9lnek.",
+                        "",
+                        "# --- K\u00f6rnyezetek: <env>_KULCS ---",
+                        "# A k\u00f6rnyezet neve bet\u0171vel kezd\u0151d\u0151, kisbet\u0171kb\u0151l, sz\u00e1mokb\u00f3l \u00e9s _ jelb\u0151l \u00e1ll\u00f3 sz\u00f3.",
+                        "# Haszn\u00e1lat: bin/build prod, bin/deploy prod",
+                        "",
+                        "prod_BRANCH=main",
+                        "prod_SSH_TARGET=root@example.hu",
+                        "prod_PROJECT_ROOT=/srv/app",
+                        "prod_PHP=php",
+                        "# A c\u00e9lg\u00e9pen a megosztott .env.local-ban k\u00f6telez\u0151en megl\u00e9v\u0151 v\u00e1ltoz\u00f3k.",
+                        "prod_REQUIRED_ENV=\"APP_SECRET DATABASE_URL\"",
+                        "",
+                        "staging_BRANCH=staging",
+                        "staging_SSH_TARGET=root@example.hu",
+                        "staging_PROJECT_ROOT=/srv/app",
+                        "staging_PHP=php",
+                        "staging_REQUIRED_ENV=\"APP_SECRET DATABASE_URL\"",
+                        "",
+                        "# --- Minden k\u00f6rnyezetre k\u00f6z\u00f6s ---",
+                        "",
+                        "# A c\u00e9lg\u00e9pen a release \u00e9s a megosztott mapp\u00e1k tulajdonosa.",
+                        "DEPLOY_OWNER=www-data",
+                        "",
+                        "# A build g\u00e9pen haszn\u00e1lt php.",
+                        "BUILD_PHP=php",
+                        "",
+                        "# A composer install --ignore-platform-req \u00e9rt\u00e9kei (sz\u00f3k\u00f6zzel elv\u00e1lasztva), pl. \"ext-bcmath\".",
+                        "BUILD_IGNORE_PLATFORM_REQS=\"\"",
+                        "",
+                        "# Release-ek k\u00f6z\u00f6tt megosztott mapp\u00e1k (a projekt gy\u00f6ker\u00e9hez k\u00e9pest).",
+                        "SHARED_PATHS=\"var/log\"",
+                        "",
+                        "# A build ut\u00e1n t\u00f6rlend\u0151 f\u00e1jlok, mapp\u00e1k. A deploy/ mapp\u00e1t NE vedd fel ide,",
+                        "# mert a hookok \u00e9s a c\u00e9lg\u00e9pi taskok innen ker\u00fclnek a c\u00e9lg\u00e9pre.",
+                        "BUILD_REMOVE=\"node_modules tests docs README.md\"",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "deploy/hooks/post-build.sample": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "# Hook: post-build (build g\u00e9pen, a build v\u00e9g\u00e9n).",
+                        "# Bekapcsol\u00e1s: nevezd \u00e1t, hogy a .sample v\u00e9gz\u0151d\u00e9s elmaradjon, \u00e9s commitold a rep\u00f3ba.",
+                        "# A hook `bash -e` m\u00f3dban fut, az els\u0151 hib\u00e1s parancs le\u00e1ll\u00edtja a buildet.",
+                        "# Munkamappa: .build/<env>",
+                        "# Titkot ne tegy\u00e9l ide, a hook a rep\u00f3 r\u00e9sze.",
+                        "#",
+                        "# K\u00f6rnyezeti v\u00e1ltoz\u00f3k:",
+                        "#   DEPLOY_ENV       a k\u00f6rnyezet neve (pl. prod)",
+                        "#   RELEASE_HASH     a buildelt commit hash-e",
+                        "#   PROJECT_ROOT     a projekt gy\u00f6kere a c\u00e9lg\u00e9pen",
+                        "",
+                        "echo \"post-build: $DEPLOY_ENV @ $RELEASE_HASH\"",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "deploy/hooks/post-switch.sample": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "# Hook: post-switch (c\u00e9lg\u00e9pen, a symlink cser\u00e9je ut\u00e1n).",
+                        "# Bekapcsol\u00e1s: nevezd \u00e1t, hogy a .sample v\u00e9gz\u0151d\u00e9s elmaradjon, \u00e9s commitold a rep\u00f3ba.",
+                        "# A hook `bash -e` m\u00f3dban fut, az els\u0151 hib\u00e1s parancs le\u00e1ll\u00edtja a deploy-t.",
+                        "# Munkamappa: a release mappa",
+                        "# Titkot ne tegy\u00e9l ide, a hook a rep\u00f3 r\u00e9sze.",
+                        "#",
+                        "# K\u00f6rnyezeti v\u00e1ltoz\u00f3k:",
+                        "#   DEPLOY_ENV       a k\u00f6rnyezet neve (pl. prod)",
+                        "#   RELEASE_DIR      a release mappa",
+                        "#   RELEASE_HASH     a telep\u00edtett commit hash-e",
+                        "#   SHARED_DIR       a megosztott mapp\u00e1k helye a c\u00e9lg\u00e9pen",
+                        "#   CREDENTIALS_DIR  a c\u00e9lg\u00e9pi credential f\u00e1jlok mapp\u00e1ja",
+                        "#   PROJECT_ROOT     a projekt gy\u00f6kere a c\u00e9lg\u00e9pen",
+                        "#   DEPLOY_OWNER     a release tulajdonosa a c\u00e9lg\u00e9pen",
+                        "",
+                        "# P\u00e9lda: php-fpm \u00fajrat\u00f6lt\u00e9se.",
+                        "# systemctl reload php8.4-fpm",
+                        "echo \"post-switch: $DEPLOY_ENV @ $RELEASE_HASH\"",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "deploy/hooks/post-upload.sample": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "# Hook: post-upload (c\u00e9lg\u00e9pen, a felt\u00f6lt\u00e9s ut\u00e1n).",
+                        "# Bekapcsol\u00e1s: nevezd \u00e1t, hogy a .sample v\u00e9gz\u0151d\u00e9s elmaradjon, \u00e9s commitold a rep\u00f3ba.",
+                        "# A hook `bash -e` m\u00f3dban fut, az els\u0151 hib\u00e1s parancs le\u00e1ll\u00edtja a deploy-t.",
+                        "# Munkamappa: a release mappa",
+                        "# Titkot ne tegy\u00e9l ide, a hook a rep\u00f3 r\u00e9sze.",
+                        "#",
+                        "# K\u00f6rnyezeti v\u00e1ltoz\u00f3k:",
+                        "#   DEPLOY_ENV       a k\u00f6rnyezet neve (pl. prod)",
+                        "#   RELEASE_DIR      a release mappa",
+                        "#   RELEASE_HASH     a telep\u00edtett commit hash-e",
+                        "#   SHARED_DIR       a megosztott mapp\u00e1k helye a c\u00e9lg\u00e9pen",
+                        "#   CREDENTIALS_DIR  a c\u00e9lg\u00e9pi credential f\u00e1jlok mapp\u00e1ja",
+                        "#   PROJECT_ROOT     a projekt gy\u00f6kere a c\u00e9lg\u00e9pen",
+                        "#   DEPLOY_OWNER     a release tulajdonosa a c\u00e9lg\u00e9pen",
+                        "",
+                        "echo \"post-upload: $RELEASE_DIR\"",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "deploy/hooks/pre-switch.sample": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "# Hook: pre-switch (c\u00e9lg\u00e9pen, a symlink cser\u00e9je el\u0151tt).",
+                        "# Bekapcsol\u00e1s: nevezd \u00e1t, hogy a .sample v\u00e9gz\u0151d\u00e9s elmaradjon, \u00e9s commitold a rep\u00f3ba.",
+                        "# A hook `bash -e` m\u00f3dban fut, az els\u0151 hib\u00e1s parancs le\u00e1ll\u00edtja a deploy-t.",
+                        "# Munkamappa: a release mappa",
+                        "# Titkot ne tegy\u00e9l ide, a hook a rep\u00f3 r\u00e9sze.",
+                        "#",
+                        "# K\u00f6rnyezeti v\u00e1ltoz\u00f3k:",
+                        "#   DEPLOY_ENV       a k\u00f6rnyezet neve (pl. prod)",
+                        "#   RELEASE_DIR      a release mappa",
+                        "#   RELEASE_HASH     a telep\u00edtett commit hash-e",
+                        "#   SHARED_DIR       a megosztott mapp\u00e1k helye a c\u00e9lg\u00e9pen",
+                        "#   CREDENTIALS_DIR  a c\u00e9lg\u00e9pi credential f\u00e1jlok mapp\u00e1ja",
+                        "#   PROJECT_ROOT     a projekt gy\u00f6kere a c\u00e9lg\u00e9pen",
+                        "#   DEPLOY_OWNER     a release tulajdonosa a c\u00e9lg\u00e9pen",
+                        "",
+                        "# P\u00e9lda: extra credential f\u00e1jl m\u00e1sol\u00e1sa a release-be (a f\u00e1jl a c\u00e9lg\u00e9pen van).",
+                        "# install -o \"$DEPLOY_OWNER\" -m 640 \"$CREDENTIALS_DIR/extra-service.json\" \"$RELEASE_DIR/config/extra-service.json\"",
+                        "echo \"pre-switch: $RELEASE_DIR\"",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "deploy/hooks/pre-upload.sample": {
+                    "contents": [
+                        "#!/usr/bin/env bash",
+                        "# Hook: pre-upload (build g\u00e9pen, az rsync el\u0151tt).",
+                        "# Bekapcsol\u00e1s: nevezd \u00e1t, hogy a .sample v\u00e9gz\u0151d\u00e9s elmaradjon, \u00e9s commitold a rep\u00f3ba.",
+                        "# A hook `bash -e` m\u00f3dban fut, az els\u0151 hib\u00e1s parancs le\u00e1ll\u00edtja a deploy-t.",
+                        "# Munkamappa: .build/<env>",
+                        "# Titkot ne tegy\u00e9l ide, a hook a rep\u00f3 r\u00e9sze.",
+                        "#",
+                        "# K\u00f6rnyezeti v\u00e1ltoz\u00f3k:",
+                        "#   DEPLOY_ENV       a k\u00f6rnyezet neve (pl. prod)",
+                        "#   RELEASE_HASH     a telep\u00edtett commit hash-e",
+                        "#   PROJECT_ROOT     a projekt gy\u00f6kere a c\u00e9lg\u00e9pen",
+                        "",
+                        "# P\u00e9lda: a felt\u00f6ltend\u0151 build ellen\u0151rz\u00e9se.",
+                        "# test -f vendor/autoload.php",
+                        "echo \"pre-upload: $DEPLOY_ENV @ $RELEASE_HASH\"",
+                        ""
+                    ],
+                    "executable": false
+                }
+            },
+            "ref": "4b043ece5bb7bb1c2a1b22f82beab9b187817fa3"
+        }
+    }
+}
