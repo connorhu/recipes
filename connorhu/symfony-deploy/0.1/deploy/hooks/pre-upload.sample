@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Hook: pre-upload (build gépen, az rsync előtt).
+# Bekapcsolás: nevezd át, hogy a .sample végződés elmaradjon, és commitold a repóba.
+# A hook `bash -e` módban fut, az első hibás parancs leállítja a deploy-t.
+# Munkamappa: .build/<env>
+# Titkot ne tegyél ide, a hook a repó része.
+#
+# Környezeti változók:
+#   DEPLOY_ENV       a környezet neve (pl. prod)
+#   RELEASE_HASH     a telepített commit hash-e
+#   PROJECT_ROOT     a projekt gyökere a célgépen
+
+# Példa: a feltöltendő build ellenőrzése.
+# test -f vendor/autoload.php
+echo "pre-upload: $DEPLOY_ENV @ $RELEASE_HASH"

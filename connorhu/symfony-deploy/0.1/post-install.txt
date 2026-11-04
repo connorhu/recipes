@@ -1,0 +1,2 @@
+  * Töltsd ki a <fg=green>deploy/deploy.conf</> értékeit (ssh cél, útvonalak)
+  * A hookok a <fg=green>deploy/hooks/</> mappában vannak, a .sample végződés elhagyásával kapcsolhatók be

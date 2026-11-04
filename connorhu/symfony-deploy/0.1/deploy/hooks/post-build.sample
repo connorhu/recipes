@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Hook: post-build (build gépen, a build végén).
+# Bekapcsolás: nevezd át, hogy a .sample végződés elmaradjon, és commitold a repóba.
+# A hook `bash -e` módban fut, az első hibás parancs leállítja a buildet.
+# Munkamappa: .build/<env>
+# Titkot ne tegyél ide, a hook a repó része.
+#
+# Környezeti változók:
+#   DEPLOY_ENV       a környezet neve (pl. prod)
+#   RELEASE_HASH     a buildelt commit hash-e
+#   PROJECT_ROOT     a projekt gyökere a célgépen
+
+echo "post-build: $DEPLOY_ENV @ $RELEASE_HASH"
